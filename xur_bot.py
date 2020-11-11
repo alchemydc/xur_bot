@@ -3,7 +3,7 @@ import random
 import discord
 import discord_response
 from dotenv import load_dotenv
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -12,14 +12,19 @@ GUILD = os.getenv('DISCORD_GUILD')
 client = commands.Bot(command_prefix="!")
 
 
+@tasks.loop(hours=168)
+async def test_func():
+    await inv()
+
+
 @client.command()
-async def inv(ctx):
+async def inv():
     await client.wait_until_ready()
     message = discord_response.message()
     if discord_response.embedded:
-        await ctx.send(embed=message)
+        await client.get_channel(id=774380973500137472).send(embed=message)
     else:
-        await ctx.send(message)
+        await client.get_channel(id=774380973500137472).send(message)
 
 
 def is_me(ctx):
@@ -34,6 +39,7 @@ async def clear(ctx):
 
 @client.event
 async def on_ready():
+    await test_func.start()
     print(f'{client.user.name} has connected to Discord!')
 
 
