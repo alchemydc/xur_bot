@@ -11,20 +11,24 @@ GUILD = os.getenv('DISCORD_GUILD')
 
 client = commands.Bot(command_prefix="!")
 
+global weekly_message
+
 
 @tasks.loop(hours=168)
-async def test_func():
+async def weekly_update():
+    global weekly_message
+    await client.wait_until_ready()
+    weekly_message = discord_response.message()
     await inv()
 
 
 @client.command()
 async def inv():
     await client.wait_until_ready()
-    message = discord_response.message()
     if discord_response.embedded:
-        await client.get_channel(id=774380973500137472).send(embed=message)
+        await client.get_channel(id=774380973500137472).send(embed=weekly_message)
     else:
-        await client.get_channel(id=774380973500137472).send(message)
+        await client.get_channel(id=774380973500137472).send(weekly_message)
 
 
 def is_me(ctx):
@@ -39,7 +43,7 @@ async def clear(ctx):
 
 @client.event
 async def on_ready():
-    await test_func.start()
+    await weekly_update.start()
     print(f'{client.user.name} has connected to Discord!')
 
 
